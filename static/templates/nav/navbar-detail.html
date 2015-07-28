@@ -1,0 +1,8 @@
+<md-whiteframe class="md-toolbar-tools md-whiteframe-z3" id="navbar-detail">
+    <md-button class="md-icon-button md-primary md-hue-1" aria-label="back" ng-click="vm.goBack()">
+        <md-icon class="md-icon-white" md-svg-icon="ambi:icon-arrow-back"></md-icon>
+    </md-button>
+    <h1 ng-click="vm.goBack()"><b>{{vm.name}}</b></h1>
+    <span flex></span>
+    <md-switch class="md-accent" ng-model="vm.on" aria-label="enabled" ng-change="vm.toggle()" ng-disabled="!vm.pluginEnabled"></md-switch>
+</md-whiteframe>

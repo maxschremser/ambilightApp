@@ -1,0 +1,47 @@
+<md-content layout-padding layout="column">
+    <section ng-if="!vm.lights">
+        <md-subheader class="md-primary">Loading Lights</md-subheader>
+        <div layout="row" layout-align="space-around">
+                <md-progress-circular class="md-accent" md-mode="indeterminate"></md-progress-circular>
+        </div>
+    </section>
+    <section ng-if="vm.lights">
+        <md-subheader class="md-primary">Found Lights</md-subheader>
+        <md-list>
+            <md-list-item class="md-2-line" ng-repeat="(key,light) in vm.lights" layout="row" ng-click="vm.go('light', {key: key, name: light.name, state: light.state, on: light.state.on})">
+                <md-button class="md-fab md-mini md-primary" aria-label="lightbulb">
+                    <md-icon md-svg-icon="ambi:icon-lightbulb{{light.state.on?'':'-outline'}}"></md-icon>
+                </md-button>
+                <div class="md-list-item-text">
+                    <h3>{{light.name}}</h3>
+                    <p>{{light.type}}</p>
+                </div>
+                <md-switch class="md-accent md-secondary" ng-model="vm.lights[key].state.on" ng-change="vm.toggleLightState(key)" aria-label="light {{key}}"></md-switch>
+            </md-list-item>
+        </md-list>
+    </section>
+    <md-divider></md-divider>
+    <section>
+        <md-subheader class="md-primary">Options</md-subheader>
+        <md-list>
+            <md-list-item layout="row" ng-click="vm.go('shake', {name: 'Shake Gesture', on: vm.shakeEnabled})">
+                <md-button class="md-fab md-mini md-primary md-hue-1" aria-label="shakeGesture">
+                    <md-icon class="md-icon-white" md-svg-icon="ambi:icon-shake"></md-icon>
+                </md-button>
+                <h3 class="md-subhead">Shake Gesture</h3>
+                <p></p>
+                <span flex></span>
+                <md-switch class="md-accent md-secondary" ng-disabled="!vm.hasShakePlugin()" ng-model="vm.shakeEnabled" ng-change="vm.toggleShake()" arial-label="enableShake"></md-switch>
+            </md-list-item>
+            <md-list-item layout="row" ng-click="vm.go('ambilight', {name: 'Ambilight + HUE', on: vm.ambilightEnabled})">
+                <md-button class="md-fab md-mini md-primary md-hue-1" aria-label="ambilight">
+                    <md-icon class="md-icon-white" md-svg-icon="ambi:icon-android-tv"></md-icon>
+                </md-button>
+                <h3 class="md-subhead">Ambilight + HUE</h3>
+                <p></p>
+                <span flex></span>
+                <md-switch class="md-accent md-secondary" ng-disabled="!vm.hasAmbilightPlugin()" ng-model="vm.ambilightEnabled" ng-change="vm.toggleAmbilight()" aria-label="enableAmbilight"></md-switch>
+            </md-list-item>
+        </md-list>
+    </section>
+</md-content>

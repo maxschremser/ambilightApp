@@ -1,0 +1,43 @@
+/*
+ * =require ../../lib/angular/angular-csp.css
+ * =require ../../lib/angular-material/angular-material.css
+ * =require_self
+*/
+
+/*
+ * Make a medium bold header for the navbar title
+*/
+h1 b {
+    font-weight: 500;
+}
+
+/*
+ * make the value label for the slider rectangular
+*/
+md-slider {
+    padding-right: 36px;
+}
+
+md-slider .md-sign {
+    width: 64px;
+    height: 28px;
+}
+
+.md-icon-white { color: white !important; }
+
+.progress {
+    background-color: #ff0;
+    height: 1em;
+    width: 100%;
+}
+.progress-bar {
+    background: linear-gradient(to right, #f00, #ff0, #92d050, #0070c0, #f0f, #f00);
+    background-size: 100% 0.25em;
+    height: 1em;
+}
+
+md-slider.ambi-hue {
+    position: relative;
+    z-index: 1;
+    top: -32px;
+}

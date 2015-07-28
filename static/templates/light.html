@@ -1,0 +1,47 @@
+<md-content layout-padding layout="column">
+    <section>
+        <md-subheader class="md-primary">Light Configuration</md-subheader>
+        <md-list>
+            <md-list-item>
+                <md-input-container>
+                    <label>Light name</label>
+                    <input ng-model="vm.name" ng-change="vm.setName()">
+                </md-input-container>
+            </md-list-item>
+            <md-list-item class="md-2-line" layout="row">
+                <div class="md-list-item-text">
+                    <h3>HUE</h3>
+                    <div class="progress">
+                        <div class="progress-bar">
+                        </div>
+                    </div>
+                    <md-slider class="md-primary ambi-hue" md-discrete min="0" max="65280" step="100" ng-model="vm.state.hue" ng-change="vm.setHUE()" aria-label="hue">
+                    </md-slider>
+                </div>
+            </md-list-item>
+            <md-list-item class="md-2-line" layout="row">
+                <div class="md-list-item-text">
+                    <h3>Saturation</h3>
+                    <md-slider class="md-primary" md-discrete min="0" max="255" ng-model="vm.state.sat" ng-change="vm.setSAT()" aria-label="saturation"></md-slider>
+                </div>
+            </md-list-item>
+            <md-list-item class="md-2-line" layout="row">
+                <div class="md-list-item-text">
+                    <h3>Brightness</h3>
+                    <md-slider class="md-primary" md-discrete min="0" max="255" ng-model="vm.state.bri" ng-change="vm.setBRI()" aria-label="brightness"></md-slider>
+                </div>
+            </md-list-item>
+        </md-list>
+    </section>
+    <md-divider></md-divider>
+    <section>
+        <md-subheader class="md-primary">Alert</md-subheader>
+        <md-list>
+            <md-list-item layout="row">
+                <md-button class="md-fab md-mini md-primary" aria-label="alert" ng-click="vm.alert()">
+                    <md-icon class="md-icon-white" md-svg-icon="ambi:icon-alert"></md-icon>
+                </md-button>
+            </md-list-item>
+        </md-list>
+    </section>
+</md-content>

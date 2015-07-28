@@ -1,0 +1,22 @@
+<!doctype html>
+<html class="no-js" ng-app="ambilight">
+  <head>
+    <meta charset="utf-8">
+    <title>ambilightApp</title>
+    <meta http-equiv="Content-Security-Policy" content="default-src *; style-src 'self' 'unsafe-inline' https:; script-src 'self' 'unsafe-inline' 'unsafe-eval' http:">
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width initial-scale=1 maximum-scale=1">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=RobotoDraft:300,400,500,700,400italic">
+    <link rel="stylesheet" href="css/styles.css">
+    <script src="cordova.js"></script>
+    <script src="js/ambilight.js"></script>
+  </head>
+
+  <body layout="column" md-theme="default">
+  <md-toolbar ui-view="nav">
+  </md-toolbar>
+
+  <md-content ui-view md-scroll-y role="main" flex>
+  </md-content>
+  </body>
+</html>

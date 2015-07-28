@@ -1,0 +1,15 @@
+<md-content layout-padding layout="column" layout-align="middle center" id="login">
+
+    <h3>Welcome to Ambilight Control</h3>
+
+    <p>Please turn on your Wifi Connection and <b>Press</b> the <b>HUE</b> Connect Button</p>
+
+    <md-container>
+        <section layout="row" layout-sm="column" layout-align="center center" ng-if="vm.hue">
+            <md-button class="md-primary md-raised" ng-click="vm.createUser()">CONNECT</md-button>
+        </section>
+        <section layout="row" layout-sm="column" layout-align="center center" ng-if="!vm.hue">
+            <md-button class="md-primary md-raised" ng-click="vm.getInstance()">RETRY</md-button>
+        </section>
+    </md-container>
+</md-content>
