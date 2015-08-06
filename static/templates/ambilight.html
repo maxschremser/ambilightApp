@@ -7,7 +7,29 @@
                     <h3>Ambilight Configuration</h3>
                     <p>Here you can configure ambilight.</p>
                     <p>
-                        TOPO:{{vm.topology}}
+                        <div layout="row">
+                            <div layout="column">
+                                <div layout="row" ng-repeat="n in [] | range:vm.topology.left">
+                                    <md-button class="md-fab md-mini md-primary md-hue-2" aria-label="ambilight" ng-attr-id="left_{{$index}}" ng-click="vm.toggleLight('left', $index)" ng-model="vm.config.left[$index]">
+                                        {{vm.config.left[$index]}}
+                                    </md-button>
+                                </div>
+                            </div>
+                            <div layout="row">
+                                <div layout="column" ng-repeat="n in [] | range:vm.topology.top">
+                                    <md-button class="md-fab md-mini md-primary md-hue-2" aria-label="ambilight" ng-attr-id="top_{{$index}}" ng-click="vm.toggleLight('top', $index)" ng-model="vm.config.top[$index]">
+                                        {{vm.config.top[$index]}}
+                                    </md-button>
+                                </div>
+                            </div>
+                            <div layout="column">
+                                <div layout="row" ng-repeat="n in [] | range:vm.topology.right">
+                                    <md-button class="md-fab md-mini md-primary md-hue-2" aria-label="ambilight" ng-attr-id="right_{{$index}}" ng-click="vm.toggleLight('right', $index)" ng-model="vm.config.right[$index]">
+                                        {{vm.config.right[$index]}}
+                                    </md-button>
+                                </div>
+                            </div>
+                        </div>
                     </p>
                 </div>
             </md-list-item>

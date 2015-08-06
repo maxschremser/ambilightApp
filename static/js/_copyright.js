@@ -4,6 +4,6 @@
  * v0.0.1
  * @License: MIT
  *
- * The Application tries to configure a connection with the local ambilight hub on the network.
+ * The Application creates a  connection with the local ambilight hub on the network and the HUE Bridge.
  *
  */

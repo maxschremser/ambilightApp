@@ -26,7 +26,7 @@
 
         angular.module('ambilight.ctrl')
 
-        .controller('StartCtrl', function($scope,$localStorage,$state,$stateParams,$mdDialog,$log,$q,hue) {
+        .controller('StartCtrl', function($scope,$localStorage,$state,$stateParams,$mdDialog,$q,hue) {
             var vm = this;
             vm.username = $localStorage.username ? $localStorage.username : "";
             vm.createUser = createUser;
@@ -39,12 +39,7 @@
             }
 
             function init() {
-                if (typeof StatusBar !== "undefined") {
-                } else {
-                    $log.warn('Plugin: StatusBar not available. No emulation available');
-                }
                 // try to get a HUE Bridge IP Address and save it to the scope of the controller
-                $log.info("start.init()");
                 getInstance();
             }
 
@@ -99,7 +94,7 @@
 
         angular.module('ambilight.ctrl')
 
-        .controller('HomeCtrl', function($scope,$rootScope,$localStorage,$state,$stateParams,$interval,$log,$mdDialog,hue,ambi) {
+        .controller('HomeCtrl', function($scope,$rootScope,$localStorage,$state,$stateParams,$interval,$mdDialog,hue,ambi) {
             var vm = this;
 
             vm.lights = null;
@@ -110,12 +105,12 @@
 
             vm.ambilightEnabled = false;
             vm.ambiPlugin = false;
+            vm.config = $rootScope.config;
 
             vm.go = go;
             vm.hasShakePlugin = hasShakePlugin;
             vm.hasAmbilightPlugin = hasAmbilightPlugin;
             vm.getLights = getLights;
-            vm.topology = getTopology;
             vm.toggleLightState = toggleLightState;
             vm.toggleShake = toggleShake;
             vm.toggleAmbilight = toggleAmbilight;
@@ -125,28 +120,28 @@
             function _init() {
                 // get all Lights at initalization phase
                 hue.getInstance().then(function () {
-                    $log.info("user: " + vm.username);
                     hue.setUser(vm.username);
                     getLights();
                 });
 
                 if (typeof shake !== "undefined") {
-                    $log.info("activating shake gesture");
                     vm.shakePlugin = true;
                     shake.stopWatch();
                     shake.startWatch(onShake);
-                } else {
-                    $log.warn('Plugin: shake not available. No emulation available');
                 }
 
                 ambi.getInstance().then(function () {
                     vm.ambiPlugin = true;
-                    vm.topology = getTopology();
                     $scope.$on('processed', function (event, processed) {
-                        setLightColor(1, processed.layer1.left[0]);
-                        setLightColor(2, processed.layer1.right[0]);
+                        setLightColor(processed.layer1, vm.config);
                     });
+                    if (angular.isDefined($rootScope.ambilightRunner)) {
+                        vm.ambilightEnabled = true;
+                    }
                 });
+
+                vm.config = $rootScope.config = $localStorage.config;
+
             }
 
             function go(to, params) {
@@ -161,37 +156,25 @@
                 return vm.ambiPlugin;
             }
 
-            function getTopology() {
-                ambi.getTopology().then(function (topology) {
-                    return topology;
-                });
-            }
-
             function getLights() {
                 hue.getLights().then(function (lights) {
-                    $log.info("HUE-Lights...: ", lights.plain());
                     vm.lights = lights.plain();
                 }, function (error) {
-                    $log.error("light.error:", error);
                 });
             }
 
             function toggleAmbilight() {
                 if (vm.ambiPlugin) {
-                    if (vm.ambilightEnabled) {
-                        $log.info("==== START ====");
+                    if (!angular.isDefined($rootScope.ambilightRunner)) {
                         ambi.startRunner($rootScope);
                     } else {
-                        $log.info("==== END ====");
                         ambi.stopRunner($rootScope);
                     }
                 }
             }
 
             function toggleLightState(key) {
-                $log.info("KEY: " + key + ", ON: " + vm.lights[key].state.on);
                 hue.setLightState(key, {on: vm.lights[key].state.on}).then(function (state) {
-                    $log.info("toggle-state-result: " + JSON.stringify(state));
                     vm.lights[key].state.on = state[0].success["/lights/" + key + "/state/on"];
                 });
             }
@@ -202,7 +185,6 @@
 
             function onShake() {
                 if (vm.shakeEnabled) {
-                    $log.info("Shake it baby");
                     angular.forEach(vm.lights, function (light,key) {
                         vm.lights[key].state.on = !vm.lights[key].state.on;
                         toggleLightState(key);
@@ -210,19 +192,34 @@
                 }
             }
 
-            function setLightColor(key, color) {
-                var r = color.r;
-                var g = color.g;
-                var b = color.b;
+            function setLightColor(color, config) {
+                var cols = {};
 
-                var xy = new colors().rgbToCIE1931(r,g,b);
-                // $log.info(key + ": (" + xy[0] + ", " + xy[1] + ")");
-                hue.setLightState(key, {xy: xy}).then();
+                angular.forEach(vm.lights, function (_value, num) {
+                    angular.forEach(config,  function (value,key) {
+                        var len = _.keys(value).length;
+                        cols.r = cols.g = cols.b = 0;
+                        var calculated = false;
+                        angular.forEach(value, function (v,k) {
+                            if (v==num) {
+                                calculated = true;
+                                cols.r += color[key][k].r;
+                                cols.g += color[key][k].g;
+                                cols.b += color[key][k].b;
+                            }
+                        });
+                        if (calculated) {
+                            cols.r /= len, cols.g /= len, cols.b /= len;
+                            var xy = new colors().rgbToCIE1931(cols.r,cols.g,cols.b);
+                            hue.setLightState(num, {xy: xy}).then();
+                        }
+                    });
+                });
             }
 
         })
 
-        .controller('LightCtrl', function($log, $window, $stateParams, hue) {
+        .controller('LightCtrl', function($window, $stateParams, hue) {
             var vm = this;
             vm.key = $stateParams.key;
             vm.name = $stateParams.name;
@@ -248,31 +245,24 @@
                 $window.history.back();
             }
 
-            function _printState(state) {
-                $log.info("STATE: " + JSON.stringify(state));
-            }
-
             function setName() {
-                hue.setLightName(vm.key, vm.name).then(_printState);
+                hue.setLightName(vm.key, vm.name).then();
             }
 
             function toggle() {
-                hue.setLightState(vm.key, {on: vm.on}).then(_printState);
+                hue.setLightState(vm.key, {on: vm.on}).then();
             }
 
             function setHUE() {
-                $log.info("key: " + vm.key + ", hue: " + vm.state.hue);
-                hue.setLightState(vm.key, {hue: vm.state.hue}).then(_printState);
+                hue.setLightState(vm.key, {hue: vm.state.hue}).then();
             }
 
             function setSAT() {
-                $log.info("key: " + vm.key + ", sat: " + vm.state.sat);
-                hue.setLightState(vm.key, {sat: vm.state.sat}).then(_printState);
+                hue.setLightState(vm.key, {sat: vm.state.sat}).then();
             }
 
             function setBRI() {
-                $log.info("key: " + vm.key + ", bri: " + vm.state.bri);
-                hue.setLightState(vm.key, {bri: vm.state.bri}).then(_printState);
+                hue.setLightState(vm.key, {bri: vm.state.bri}).then();
             }
 
             function alert() {
@@ -289,7 +279,7 @@
 
         })
 
-        .controller('ShakeCtrl', function($log, $window, $stateParams, $localStorage) {
+        .controller('ShakeCtrl', function($window, $stateParams, $localStorage) {
             var vm = this;
 
             vm.name = $stateParams.name;
@@ -307,7 +297,6 @@
             }
 
             function toggle() {
-                $log.info("ON: " + vm.on);
                 $localStorage.shakeEnabled = vm.on;
             }
 
@@ -319,9 +308,10 @@
 
         })
 
-        .controller('AmbiCtrl', function($log, $scope, $window, $stateParams, ambi) {
+        .controller('AmbiCtrl', function($scope, $rootScope, $window, $stateParams, $localStorage, ambi, hue) {
             var vm = this;
 
+            vm.lights = {};
             vm.name = $stateParams.name;
             vm.on = $stateParams.on;
             vm.pluginEnabled = false;
@@ -329,6 +319,7 @@
             // Functions for the NavBar
             vm.goBack = goBack;
             vm.toggle = toggle;
+            vm.toggleLight = toggleLight;
 
             init();
 
@@ -336,18 +327,62 @@
                 $window.history.back();
             }
 
-            function toggle(scope) {
+            function toggle() {
                 if (vm.on) {
-                    $log.info("==== START ====");
                     ambi.startRunner($rootScope);
                 } else {
-                    $log.info("==== END ====");
                     ambi.stopRunner($rootScope);
                 }
             }
 
             function init() {
                 vm.pluginEnabled = ambi.isEnabled();
+                ambi.getTopology().then(function (topology) {
+                    vm.topology = topology.plain();
+                });
+                hue.getLights().then(function (lights) {
+                    vm.lights = lights.plain();
+                });
+                vm.config = $rootScope.config = $localStorage.config;
+            }
+
+            function getMaxKey(obj) {
+                var max = 0;
+
+                for (var o in obj) {
+                    max = (parseInt(o) > max) ? parseInt(o) : max;
+
+                }
+                return max;
+
+            }
+
+            function toggleLight(orientation, num) {
+                if ($rootScope.config && $rootScope.config[orientation]) {
+                    var state = $rootScope.config[orientation][num];
+                    if (state) {
+                        if (state < getMaxKey(vm.lights))
+                            state++;
+                        else
+                            state = "";
+
+                        $rootScope.config[orientation][num] = state;
+                        vm.config = $rootScope.config;
+                        $localStorage.config = $rootScope.config;
+                    } else {
+                        $rootScope.config[orientation][num] = 1;
+                        vm.config = $rootScope.config;
+                        $localStorage.config = $rootScope.config;
+                    }
+                } else {
+                    if (!$rootScope.config)
+                        $rootScope.config = {};
+
+                    $rootScope.config[orientation] = {};
+                    $rootScope.config[orientation][num] = 1;
+                    vm.config = $rootScope.config;
+                    $localStorage.config = $rootScope.config;
+                }
             }
         });
 

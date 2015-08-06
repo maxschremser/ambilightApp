@@ -10,13 +10,16 @@ var gulp = require('gulp'),
     minifyCss = require('gulp-minify-css'),
     uglify = require('gulp-uglify'),
     rename = require('gulp-rename'),
+    create = require('gulp-cordova-create'),
+    plugin = require('gulp-cordova-plugin'),
+    android = require('gulp-cordova-build-android'),
     sh = require('shelljs');
 
 var paths = {
   clean: ['www'],
   styles: ['static/css/styles.css'],
   scripts: ['static/js/ambilight.js'],
-  images: ['static/img/**/ambilight-icons.svg', 'static/img/*.*'],
+  images: ['static/img/**/ambilight-icons.svg', 'static/img/*.jpg'],
   templates: ['static/**/*.html']
 };
 
@@ -91,4 +94,14 @@ gulp.task('git-check', function(done) {
     process.exit(1);
   }
   done();
+});
+
+gulp.task('release', ['default'], function () {
+    return gulp.src('www')
+        .pipe(android({
+            release:true,
+            storeFile:'/path/to/keystore',
+            keyAlias: 'ambilightApp'
+        }))
+        .pipe(gulp.dest('apk'))
 });
