@@ -13,7 +13,7 @@
                     <md-icon md-svg-icon="ambi:icon-lightbulb{{light.state.on?'':'-outline'}}"></md-icon>
                 </md-button>
                 <div class="md-list-item-text">
-                    <h3>{{key}}{{light.name}}</h3>
+                    <h3>{{key}} - {{light.name}}</h3>
                     <p>{{light.type}}</p>
                 </div>
                 <md-switch class="md-accent md-secondary" ng-model="vm.lights[key].state.on" ng-change="vm.toggleLightState(key)" aria-label="light {{key}}"></md-switch>
