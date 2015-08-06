@@ -3,8 +3,8 @@
 # http://git-scm.com/docs/gitignore
 
 hooks/
-resources/ios
-resources/android
+resources/ios/
+resources/android/
 lib/
 node_modules/
 platforms/
