@@ -125,6 +125,8 @@
                 var topology = {};
                 var processed = {};
                 var processedRoute = null;
+                var cachedRoute = null;
+                var modeRoute = null;
                 var ambilightEnabled = false;
 
                 _init();
@@ -147,6 +149,7 @@
                                 var serviceURL = _.result(_.find(devices, function (device) {
                                     return device.type == "urn:schemas-upnp-org:device:MediaRenderer:1";
                                 }), "serviceURL");
+
                                 _configure(serviceURL);
                                 deferred.resolve(serviceURL);
                             }, function (error) {
@@ -173,7 +176,12 @@
                     var url = document.createElement("a");
                     url.href = serviceURL;
                     baseUrl = "http://" + url.hostname + ":1925/1";
-                    processedRoute = Restangular.allUrl("processed", baseUrl).all("ambilight").one("processed");
+                    var baseRoute = Restangular.withConfig(function (RestangularConfigurer) {
+                        RestangularConfigurer.setBaseUrl(baseUrl);
+                    });
+                    processedRoute = baseRoute.all("ambilight").one("processed");
+                    cachedRoute = baseRoute.all("ambilight").one("cached");
+                    modeRoute = baseRoute.all("ambilight").one("mode");
                 }
 
                 function getProcessed() {
@@ -204,13 +212,23 @@
                     return ambilightEnabled;
                 }
 
+                function setMode(mode) {
+                    modeRoute.customPOST({current: mode}).then();
+                }
+
+                function setCached(rgb) {
+                    cachedRoute.customPOST({r: rgb[0], g: rgb[1], b: rgb[2]}).then();
+                }
+
                 return {
                     getInstance: getInstance,
                     getTopology: getTopology,
                     getProcessed: getProcessed,
                     startRunner: startRunner,
                     stopRunner: stopRunner,
-                    isEnabled: isEnabled
+                    isEnabled: isEnabled,
+                    setMode: setMode,
+                    setCached: setCached
                 };
 
             });

@@ -104,7 +104,9 @@
             vm.shakePlugin = false;
 
             vm.ambilightEnabled = false;
+            vm.ambilightTV = 'Searching Ambilight TV';
             vm.ambiPlugin = false;
+            vm.staticAmbilight = false;
             vm.config = $rootScope.config;
 
             vm.go = go;
@@ -114,6 +116,10 @@
             vm.toggleLightState = toggleLightState;
             vm.toggleShake = toggleShake;
             vm.toggleAmbilight = toggleAmbilight;
+            vm.setHUE = setHUE;
+            vm.setSAT = setSAT;
+            vm.setBRI = setBRI;
+
 
             _init();
 
@@ -130,8 +136,10 @@
                     shake.startWatch(onShake);
                 }
 
-                ambi.getInstance().then(function () {
+                ambi.getInstance().then(function (serviceURL) {
                     vm.ambiPlugin = true;
+                    vm.ambilightTV = 'Philips TV';
+                    // TODO: read the nmrDescription.xml behind the serviceURL
                     $scope.$on('processed', function (event, processed) {
                         setLightColor(processed.layer1, vm.config);
                     });
@@ -217,7 +225,49 @@
                 });
             }
 
-        })
+            function setHUE() {
+                var rgb = [];
+                angular.forEach(vm.lights, function (light, key) {
+                    if (light.state.on) {
+                        hue.setLightState(key, {hue: vm.state.hue}).then(
+                            function (res) {
+                                if (rgb.length == 0) {
+                                    hue.getLight(key).then(function (lightState) {
+                                        var xy = lightState.state.xy;
+                                        var bri = vm.state.bri = lightState.state.bri;
+                                        vm.state.sat = lightState.state.sat;
+                                        rgb = new colors().CIE1931ToRGB(xy[0], xy[1], bri);
+                                        vm.style = {'background-color': "#" + new colors().CIE1931ToHex(xy[0], xy[1], bri), width: "155px", height: "155px"};
+                                        if (vm.staticAmbilight) {
+                                            ambi.setMode("manual");
+                                            ambi.setCached(rgb);
+                                        }
+                                    });
+                                }
+                            });
+
+                    }
+                });
+            }
+
+            function setSAT() {
+                angular.forEach(vm.lights, function (light, key) {
+                    if (light.state.on) {
+                        hue.setLightState(key, {sat: vm.state.sat}).then();
+                    }
+                });
+            }
+
+            function setBRI() {
+                angular.forEach(vm.lights, function (light, key) {
+                    if (light.state.on) {
+                        hue.setLightState(key, {bri: vm.state.bri}).then();
+                    }
+                });
+            }
+
+
+            })
 
         .controller('LightCtrl', function($window, $stateParams, hue) {
             var vm = this;

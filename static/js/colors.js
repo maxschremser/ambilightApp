@@ -366,6 +366,13 @@ var colors = function () {
             return rgbToHex(rgb[0], rgb[1], rgb[2]);
         },
 
+        CIE1931ToRGB : function (x, y, bri) {
+            if (bri === undefined) {
+                bri = 1;
+            }
+            return getRGBFromXYAndBrightness(x, y, bri);
+        },
+
         hexFullRed:     "FF0000",
         hexFullGreen:   "00FF00",
         hexFullBlue:    "0000FF",

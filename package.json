@@ -1,6 +1,6 @@
 {
   "name": "ambilightapp",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "description": "ambilightApp: An App to control HUE Lights, bind them to Ambilight TV and control via NFC Tags",
   "dependencies": {},
   "devDependencies": {
